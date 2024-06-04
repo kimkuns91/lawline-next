@@ -9,7 +9,7 @@ interface ChatContainerProps {}
 
 const ChatContainer: React.FC<ChatContainerProps> = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-
+  const [roomId, setRoomId] = useState<string | null>(null);
   return (
     <div className={cn('absolute top-0 left-0', 'h-screen w-full', 'flex')}>
       <ChatSideBar isSidebarVisible={isSidebarVisible} />
@@ -22,6 +22,7 @@ const ChatContainer: React.FC<ChatContainerProps> = () => {
         )}
       >
         <ChatRoom
+          roomId={roomId}
           isSidebarVisible={isSidebarVisible}
           setIsSidebarVisible={setIsSidebarVisible}
         />

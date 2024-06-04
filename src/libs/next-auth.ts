@@ -9,8 +9,6 @@ import { v4 as uuidv4 } from 'uuid';
 import prisma from './prisma';
 
 if (
-  !process.env.GITHUB_ID ||
-  !process.env.GITHUB_SECRET ||
   !process.env.KAKAO_CLIENT_ID ||
   !process.env.KAKAO_CLIENT_SECRET ||
   !process.env.NEXTAUTH_SECRET

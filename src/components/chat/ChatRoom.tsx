@@ -16,16 +16,22 @@ export const maxDuration = 30;
 interface ChatRoomProps {
   isSidebarVisible: boolean;
   setIsSidebarVisible: (value: boolean) => void;
+  roomId?: string | null;
 }
 
 const ChatRoom: React.FC<ChatRoomProps> = ({
   isSidebarVisible,
   setIsSidebarVisible,
+  roomId
 }) => {
   const [messages, setMessages] = useState<CoreMessage[]>([]);
 
   useEffect(() => {
-    console.log('messages:', messages); 
+    console.log('newMessage:', messages[messages.length - 1])
+    // if(!roomId){
+    //   alert('방이 없습니다.');
+    // }
+    // axios.post('/api/chat', {message: messages[messages.length - 1]})
   }, [messages]);
 
   const [input, setInput] = useState('');
@@ -53,8 +59,11 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
           content: content as string,
         },
       ]);
+      console.log('결과값:', await content);
     }
+  
   };
+
   return (
     <div
       className={cn(
@@ -85,7 +94,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
       </div>
 
       <form className="mb-8 w-full" action={handleSubmit}>
-        <div className="flex items-center justify-between rounded border border-slate-300 p-2 shadow-xl">
+        <div className="flex items-center justify-between rounded-full border border-slate-300 px-6 py-2 shadow-xl">
           <input
             className="flex-1 bg-transparent p-2 text-slate-900 placeholder:text-gray-500 focus:outline-none"
             value={input}
