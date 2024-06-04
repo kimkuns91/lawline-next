@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  email           String      @unique
+  name            String 
+  profileImg      String      @default("/images/noUser.webp")
+  password        String
+  role            Role        @default(USER)
+  provider        String      @default("credentials")
+  createdAt       DateTime    @default(now())
+  emailVerified   DateTime?   @map("verifiedAt")
+  @@map("users")
+}
+
+model AIChat {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  role            String
+  content         String      
+  createdAt       DateTime    @default(now())
+  @@map("aichats")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
