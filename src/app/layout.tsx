@@ -1,7 +1,6 @@
 import '@/styles/globals.css';
 
 import SessionProvider from '@/components/SessionProvider';
-import Header from '@/components/common/Header';
 import { cn } from '@/utils/style';
 import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
@@ -27,13 +26,12 @@ export default async function RootLayout({
       <body
         className={cn(
           'scrollbar flex overflow-x-hidden',
-          'bg-slate-950 text-sm text-slate-50',
+          'bg-[#F7F7F5]',
           'lg:text-base'
         )}
       >
         <SessionProvider session={session}>
           <div className="flex flex-1 flex-col">
-            <Header />
             <div className="flex flex-1 flex-col overflow-y-auto">
               <main className="flex flex-1 flex-col">
                 {children}

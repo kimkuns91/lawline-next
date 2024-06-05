@@ -19,13 +19,21 @@ model User {
   emailVerified   DateTime?   @map("verifiedAt")
   @@map("users")
 }
-
-model AIChat {
+model AIChatRoom {
   id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String?      @map("userId")
+  title           String
+  createdAt       DateTime    @default(now())
+  @@map("aichatrooms")
+}
+
+model AIChatMessage {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  roomId          String      @map("roomId")
   role            String
   content         String      
   createdAt       DateTime    @default(now())
-  @@map("aichats")
+  @@map("aichatmessages")
 }
 
 enum Role {

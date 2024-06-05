@@ -4,10 +4,10 @@ import { continueConversation } from '@/libs/chat/actions';
 import { cn } from '@/utils/style';
 import { type CoreMessage } from 'ai';
 import { readStreamableValue } from 'ai/rsc';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
-import { IoArrowBackOutline, IoArrowForwardOutline } from 'react-icons/io5';
-import { TbMinusVertical } from 'react-icons/tb';
+
 import ChatMessage from './ChatMessage';
 
 export const dynamic = 'force-dynamic';
@@ -17,30 +17,63 @@ interface ChatRoomProps {
   isSidebarVisible: boolean;
   setIsSidebarVisible: (value: boolean) => void;
   roomId?: string | null;
+  userId?: string | null;
+  setRoomId: (value: string) => void;
 }
 
 const ChatRoom: React.FC<ChatRoomProps> = ({
   isSidebarVisible,
   setIsSidebarVisible,
-  roomId
+  roomId,
+  userId,
+  setRoomId,
 }) => {
   const [messages, setMessages] = useState<CoreMessage[]>([]);
-
-  useEffect(() => {
-    console.log('newMessage:', messages[messages.length - 1])
-    // if(!roomId){
-    //   alert('방이 없습니다.');
-    // }
-    // axios.post('/api/chat', {message: messages[messages.length - 1]})
-  }, [messages]);
-
   const [input, setInput] = useState('');
 
-  const toggleSidebar = () => {
-    setIsSidebarVisible(!isSidebarVisible);
+  useEffect(() => {
+    (async () => {
+      if (roomId) {
+        try {
+          const result = await axios.get(`/api/room/${roomId}`);
+          setMessages(result.data);
+        } catch (error) {
+          console.error('Error fetching chat messages:', error);
+        }
+      }
+    })();
+  }, [roomId]);
+
+  const createRoomIfNeeded = async (
+    input: string
+  ): Promise<string | null | undefined> => {
+    if (!roomId) {
+      const result = await axios.post('/api/room', { input, userId });
+      const newRoomId = result.data.id;
+      if (!newRoomId) {
+        console.error('Room ID is required');
+        return null;
+      }
+      setRoomId(newRoomId);
+      let rooms = JSON.parse(localStorage.getItem('rooms') || '[]');
+      if (!Array.isArray(rooms)) {
+        rooms = [];
+      }
+      rooms.push({ roomId: newRoomId, title: input });
+      localStorage.setItem('rooms', JSON.stringify(rooms));
+      return newRoomId;
+    }
+    return roomId;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const currentRoomId = await createRoomIfNeeded(input);
+    console.log('currentRoomId : ', currentRoomId);
+    if (!currentRoomId) {
+      return;
+    }
+
     const newMessages: CoreMessage[] = [
       ...messages,
       { content: input, role: 'user' },
@@ -49,7 +82,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     setMessages(newMessages);
     setInput('');
 
-    const result = await continueConversation(newMessages);
+    const result = await continueConversation(newMessages, currentRoomId);
+    let finalContent = '';
 
     for await (const content of readStreamableValue(result)) {
       setMessages([
@@ -59,9 +93,18 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
           content: content as string,
         },
       ]);
-      console.log('결과값:', await content);
+      finalContent = content as string;
     }
-  
+
+    try {
+      await axios.post('/api/chat', {
+        messages: { role: 'assistant', content: finalContent },
+        roomId: currentRoomId,
+      });
+      console.log('Messages saved to the server');
+    } catch (error) {
+      console.error('Error saving messages to the server:', error);
+    }
   };
 
   return (
@@ -73,17 +116,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
         'px-28 py-6'
       )}
     >
-      <button
-        className="absolute top-1/2 left-2 transform -translate-y-1/2 flex items-center group"
-        onClick={toggleSidebar}
-      >
-        <TbMinusVertical className="text-2xl" />
-        {isSidebarVisible ? (
-          <IoArrowBackOutline className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        ) : (
-          <IoArrowForwardOutline className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        )}
-      </button>
 
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6">
         {messages.map((m, i) => (
@@ -93,7 +125,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
         ))}
       </div>
 
-      <form className="mb-8 w-full" action={handleSubmit}>
+      <form className="mb-8 w-full" onSubmit={handleSubmit}>
         <div className="flex items-center justify-between rounded-full border border-slate-300 px-6 py-2 shadow-xl">
           <input
             className="flex-1 bg-transparent p-2 text-slate-900 placeholder:text-gray-500 focus:outline-none"

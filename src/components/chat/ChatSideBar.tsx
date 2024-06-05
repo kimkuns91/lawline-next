@@ -2,13 +2,22 @@ import { MdChevronRight, MdHome } from 'react-icons/md';
 
 import { cn } from '@/utils/style';
 import Image from 'next/image';
-import { RiRobot2Line } from "react-icons/ri";
+import { RiRobot2Line } from 'react-icons/ri';
+import { RoomState } from './ChatContainer';
 
 interface ChatSideBarProps {
   isSidebarVisible: boolean;
+  rooms: RoomState[] | null;
+  roomId: string | null;
+  setRoomId: (value: string) => void;
 }
 
-const ChatSideBar: React.FC<ChatSideBarProps> = ({ isSidebarVisible }) => {
+const ChatSideBar: React.FC<ChatSideBarProps> = ({
+  isSidebarVisible,
+  rooms,
+  roomId,
+  setRoomId,
+}) => {
   return (
     <div
       className={cn(
@@ -60,22 +69,37 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({ isSidebarVisible }) => {
           <MdChevronRight />
         </div>
       </div>
-      <div className='p-4'>
+      <div className="p-4">
         <p>대화 내역</p>
       </div>
-        {/* 대화 내역 목록 예시 */}
+      {/* 대화 내역 목록 예시 */}
       <div className={cn('flex-1 overflow-y-auto px-4 py-2')}>
         <ul>
-          {Array.from({ length: 50 }, (_, i) => (
-            <li key={i} className="my-2">
-              대화 내역 {i + 1}
-            </li>
-          ))}
+          {rooms &&
+            rooms.map((room, i) => (
+              <li
+                key={i}
+                className={cn(
+                  'my-2 p-2 cursor-pointer transition-colors duration-200 rounded',
+                  roomId === room.roomId
+                    ? 'bg-blue-500 text-white'
+                    : 'hover:bg-gray-200'
+                )}
+                onClick={() => {
+                  setRoomId(room.roomId);
+                }}
+              >
+                {room.title}
+              </li>
+            ))}
         </ul>
       </div>
       <div className={cn('px-4 py-4')}>
         <button
-          className={cn('w-full rounded bg-[#40ab55] text-white py-2', 'hover:opacity-70')}
+          className={cn(
+            'w-full rounded bg-[#40ab55] text-white py-2',
+            'hover:opacity-70'
+          )}
         >
           로그인
         </button>

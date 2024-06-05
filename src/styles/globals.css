@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.custom-border {
+  display: flex;
+  flex-basis: 100%;
+  align-items: center;
+}
+.custom-border::before,
+.custom-border::after {
+  content: '';
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.35);
+  height: 1px;
+  font-size: 0px;
+  line-height: 0px;
+}
+.custom-border::before {
+  margin-right: 16px;
+}
+.custom-border::after {
+  margin-left: 16px;
+}
