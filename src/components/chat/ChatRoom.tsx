@@ -6,7 +6,8 @@ import { type CoreMessage } from 'ai';
 import { readStreamableValue } from 'ai/rsc';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { FaPaperPlane } from 'react-icons/fa';
+import { FaPaperPlane, FaSpinner } from 'react-icons/fa';
+;
 
 import ChatMessage from './ChatMessage';
 
@@ -14,22 +15,20 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 interface ChatRoomProps {
-  isSidebarVisible: boolean;
-  setIsSidebarVisible: (value: boolean) => void;
   roomId?: string | null;
   userId?: string | null;
   setRoomId: (value: string) => void;
 }
 
 const ChatRoom: React.FC<ChatRoomProps> = ({
-  isSidebarVisible,
-  setIsSidebarVisible,
+
   roomId,
   userId,
   setRoomId,
 }) => {
   const [messages, setMessages] = useState<CoreMessage[]>([]);
   const [input, setInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -38,7 +37,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
           const result = await axios.get(`/api/room/${roomId}`);
           setMessages(result.data);
         } catch (error) {
-          console.error('Error fetching chat messages:', error);
+          console.error('Error fetching chat Fmessages:', error);
         }
       }
     })();
@@ -68,9 +67,17 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!input.trim()) { // 입력 값이 없으면 함수 종료
+      return;
+    }
+
+    setIsSending(true); // 메시지 전송 상태로 설정
+
     const currentRoomId = await createRoomIfNeeded(input);
-    console.log('currentRoomId : ', currentRoomId);
+
     if (!currentRoomId) {
+      setIsSending(false);
       return;
     }
 
@@ -105,6 +112,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     } catch (error) {
       console.error('Error saving messages to the server:', error);
     }
+
+    setIsSending(false); // 메시지 전송 완료 후 상태 초기화
   };
 
   return (
@@ -133,8 +142,19 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
             placeholder="LawLine AI 봇에게 법률에 대해 물어보세요."
             onChange={(e) => setInput(e.target.value)}
           />
-          <button type="submit" className="ml-4 p-2">
-            <FaPaperPlane className="text-slate-300" />
+          <button 
+            type="submit" 
+            className={cn(
+              'ml-4 p-2',
+              isSending ? 'opacity-50 cursor-not-allowed' : 'text-slate-700'
+            )} 
+            disabled={isSending || !input.trim()} // 메시지 전송 중이거나 입력 값이 없으면 비활성화
+          >
+            {isSending ? (
+              <FaSpinner className="animate-spin text-slate-700" /> // 로딩 스피너 아이콘
+            ) : (
+              <FaPaperPlane />
+            )}
           </button>
         </div>
       </form>

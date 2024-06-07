@@ -2,6 +2,7 @@ import { MdChevronRight, MdHome } from 'react-icons/md';
 
 import { cn } from '@/utils/style';
 import Image from 'next/image';
+import Link from 'next/link';
 import { RiRobot2Line } from 'react-icons/ri';
 import { RoomState } from './ChatContainer';
 
@@ -26,13 +27,13 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
         'transition-transform duration-300 ease-in-out',
         'bg-white text-black',
         isSidebarVisible ? 'translate-x-0' : '-translate-x-full',
-        'flex flex-col'
+        'flex flex-col',
       )}
       style={{ width: '260px' }}
     >
-      <div className={cn('px-2 py-6', 'border-b border-black')}>
+      <div className={cn('px-2 py-6', 'border-b border-slate-300')}>
         <Image
-          className="px-2 mb-3"
+          className="pl-4 mb-6"
           src="/images/Logo.png"
           alt="LawLine Logo"
           width={160}
@@ -42,14 +43,14 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
           className={cn(
             'flex items-center justify-between',
             'rounded',
-            'p-2',
+            'py-2 pl-4 pr-6',
             'hover:bg-gray-200',
             'cursor-pointer'
           )}
         >
           <div className={cn('flex items-center')}>
             <MdHome className={cn('mr-4 text-lg')} />
-            <p className="text-base">채팅 홈</p>
+            <p className="text-base font-semibold">채팅 홈</p>
           </div>
           <MdChevronRight />
         </div>
@@ -57,23 +58,23 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
           className={cn(
             'flex items-center justify-between',
             'rounded',
-            'p-2',
+            'py-2 pl-4 pr-6',
             'hover:bg-gray-200',
             'cursor-pointer'
           )}
         >
           <div className={cn('flex items-center')}>
             <RiRobot2Line className={cn('mr-4 text-lg')} />
-            <p className="text-base">AI 캐릭터 홈</p>
+            <p className="text-base font-semibold">AI 캐릭터 홈</p>
           </div>
           <MdChevronRight />
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-4 px-6">
         <p>대화 내역</p>
       </div>
       {/* 대화 내역 목록 예시 */}
-      <div className={cn('flex-1 overflow-y-auto px-4 py-2')}>
+      <div className={cn('flex-1 overflow-y-auto px-6 py-2')}>
         <ul>
           {rooms &&
             rooms.map((room, i) => (
@@ -94,15 +95,16 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
             ))}
         </ul>
       </div>
-      <div className={cn('px-4 py-4')}>
-        <button
-          className={cn(
-            'w-full rounded bg-[#40ab55] text-white py-2',
-            'hover:opacity-70'
-          )}
+      <div className={cn('flex w-full px-6 py-8')}>
+        <Link
+            className={cn(
+              'w-full flex justify-center items-center rounded bg-[#40ab55] text-white py-2',
+              'hover:opacity-70'
+            )}
+          href="/login"
         >
           로그인
-        </button>
+        </Link>
       </div>
     </div>
   );

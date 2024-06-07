@@ -15,6 +15,7 @@
         "axios": "^1.7.2",
         "bcryptjs": "^2.4.3",
         "class-variance-authority": "^0.7.0",
+        "formik": "^2.4.6",
         "framer-motion": "^11.2.10",
         "next": "14.2.3",
         "next-auth": "^4.24.7",
@@ -26,6 +27,7 @@
         "react-toastify": "^10.0.5",
         "tailwind-merge": "^2.3.0",
         "uuid": "^9.0.1",
+        "yup": "^1.4.0",
         "zod": "^3.23.8"
     },
     "devDependencies": {

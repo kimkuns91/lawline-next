@@ -55,13 +55,14 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ userId }) => {
       <div
         className={cn(
           'flex-1 relative',
-          'bg-[#e3f2e6]',
+          'bg-[#f7fcf8]',
           'transition-all duration-300 ease-in-out',
-          isSidebarVisible ? 'ml-64' : 'ml-0'
+          isSidebarVisible ? 'ml-64' : 'ml-0',
+          'border-l border-slate-300'
         )}
       >
         <button
-          className="absolute top-1/2 left-2 transform -translate-y-1/2 flex items-center group"
+          className="absolute top-1/2 left-2 transform -translate-y-1/2 flex items-center group text-slate-400"
           onClick={toggleSidebar}
         >
           <TbMinusVertical className="text-2xl" />
@@ -75,8 +76,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ userId }) => {
         <ChatRoom
           roomId={roomId}
           userId={userId}
-          isSidebarVisible={isSidebarVisible}
-          setIsSidebarVisible={setIsSidebarVisible}
           setRoomId={setRoomId}
         />
       </div>
