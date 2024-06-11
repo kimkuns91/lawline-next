@@ -27,7 +27,7 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
         'transition-transform duration-300 ease-in-out',
         'bg-white text-black',
         isSidebarVisible ? 'translate-x-0' : '-translate-x-full',
-        'flex flex-col',
+        'flex flex-col'
       )}
       style={{ width: '260px' }}
     >
@@ -48,10 +48,10 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
             'cursor-pointer'
           )}
         >
-          <div className={cn('flex items-center')}>
+          <Link href={'/ai'} className={cn('flex items-center')}>
             <MdHome className={cn('mr-4 text-lg')} />
             <p className="text-base font-semibold">채팅 홈</p>
-          </div>
+          </Link>
           <MdChevronRight />
         </div>
         <div
@@ -63,10 +63,10 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
             'cursor-pointer'
           )}
         >
-          <div className={cn('flex items-center')}>
+          <Link href={'/characters'} className={cn('flex items-center')}>
             <RiRobot2Line className={cn('mr-4 text-lg')} />
             <p className="text-base font-semibold">AI 캐릭터 홈</p>
-          </div>
+          </Link>
           <MdChevronRight />
         </div>
       </div>
@@ -97,10 +97,10 @@ const ChatSideBar: React.FC<ChatSideBarProps> = ({
       </div>
       <div className={cn('flex w-full px-6 py-8')}>
         <Link
-            className={cn(
-              'w-full flex justify-center items-center rounded bg-[#40ab55] text-white py-2',
-              'hover:opacity-70'
-            )}
+          className={cn(
+            'w-full flex justify-center items-center rounded bg-[#40ab55] text-white py-2',
+            'hover:opacity-70'
+          )}
           href="/login"
         >
           로그인

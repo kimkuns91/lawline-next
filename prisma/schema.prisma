@@ -36,6 +36,19 @@ model AIChatMessage {
   @@map("aichatmessages")
 }
 
+model AIModel {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String
+  model           String
+  prompt          String
+  greeting        String
+  profileImg      String      @default("/images/defaultProfile.png")
+  likes           Int         @default(0)
+  createdAt       DateTime    @default(now())
+  @@map("aimodels")
+}
+
 enum Role {
   USER
   ADMIN

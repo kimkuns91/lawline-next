@@ -57,3 +57,35 @@ export async function continueConversation(
 
   return stream.value;
 }
+
+export async function continueConversationWithAiModel(
+  prompt: string,
+  messages: CoreMessage[],
+  roomId: string
+) {
+  'use server';
+
+  const promptMessage: CoreMessage = {
+    role: 'system',
+    content: prompt,
+  };
+
+  const updatedMessages = [promptMessage, ...messages];
+
+  await prisma.aIChatMessage.create({
+    data: {
+      roomId,
+      role: 'user',
+      content: convertContentToString(messages[messages.length - 1].content),
+    },
+  });
+
+  const result = await streamText({
+    model: openai('gpt-4-turbo'),
+    messages: updatedMessages,
+  });
+
+  const stream = createStreamableValue(result.textStream);
+
+  return stream.value;
+}

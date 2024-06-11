@@ -1,62 +1,41 @@
-'use client';
-
-import { continueConversation } from '@/libs/chat/actions';
-import { cn } from '@/utils/style';
-import { type CoreMessage } from 'ai';
-import { readStreamableValue } from 'ai/rsc';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaPaperPlane, FaSpinner } from 'react-icons/fa';
-import ChatMessage from './ChatMessage';
 
-export const dynamic = 'force-dynamic';
-export const maxDuration = 30;
+import { continueConversationWithAiModel } from '@/libs/chat/actions';
+import { cn } from '@/utils/style';
+import { AIModel } from '@prisma/client';
+import { CoreMessage } from 'ai';
+import { readStreamableValue } from 'ai/rsc';
+import axios from 'axios';
+import CharacterMessage from './CharacterMessage';
 
-interface ChatRoomProps {
-  roomId?: string | null;
-  userId?: string | null;
-  setRoomId: (value: string) => void;
+interface CharacterChatRoomProps {
+  userId?: string;
+  character: AIModel;
 }
 
-const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
+const CharacterChatRoom: React.FC<CharacterChatRoomProps> = ({
+  userId,
+  character,
+}) => {
   const [messages, setMessages] = useState<CoreMessage[]>([]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [roomId, setRoomId] = useState(null);
 
   useEffect(() => {
     (async () => {
-      if (roomId) {
-        try {
-          const result = await axios.get(`/api/room/${roomId}`);
-          setMessages(result.data);
-        } catch (error) {
-          console.error('Error fetching chat Fmessages:', error);
-        }
+      try {
+        const roomIdResult = await axios.post('/api/room', {
+          input: character.name,
+          userId,
+        });
+        setRoomId(roomIdResult.data.id);
+      } catch (error) {
+        console.error('Error fetching character:', error);
       }
     })();
-  }, [roomId]);
-
-  const createRoomIfNeeded = async (
-    input: string
-  ): Promise<string | null | undefined> => {
-    if (!roomId) {
-      const result = await axios.post('/api/room', { input, userId });
-      const newRoomId = result.data.id;
-      if (!newRoomId) {
-        console.error('Room ID is required');
-        return null;
-      }
-      setRoomId(newRoomId);
-      let rooms = JSON.parse(localStorage.getItem('rooms') || '[]');
-      if (!Array.isArray(rooms)) {
-        rooms = [];
-      }
-      rooms.push({ roomId: newRoomId, title: input });
-      localStorage.setItem('rooms', JSON.stringify(rooms));
-      return newRoomId;
-    }
-    return roomId;
-  };
+  }, [userId, character]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,13 +47,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
 
     setIsSending(true); // 메시지 전송 상태로 설정
 
-    const currentRoomId = await createRoomIfNeeded(input);
-
-    if (!currentRoomId) {
-      setIsSending(false);
-      return;
-    }
-
     const newMessages: CoreMessage[] = [
       ...messages,
       { content: input, role: 'user' },
@@ -83,7 +55,11 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
     setMessages(newMessages);
     setInput('');
 
-    const result = await continueConversation(newMessages, currentRoomId);
+    const result = await continueConversationWithAiModel(
+      character?.prompt!,
+      newMessages,
+      roomId!
+    );
     let finalContent = '';
 
     for await (const content of readStreamableValue(result)) {
@@ -100,7 +76,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
     try {
       await axios.post('/api/chat', {
         messages: { role: 'assistant', content: finalContent },
-        roomId: currentRoomId,
+        roomId,
       });
       console.log('Messages saved to the server');
     } catch (error) {
@@ -109,6 +85,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
 
     setIsSending(false); // 메시지 전송 완료 후 상태 초기화
   };
+
+  if (!character) return 'loading';
 
   return (
     <div
@@ -120,9 +98,18 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
       )}
     >
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6">
+        <CharacterMessage
+          role={'assistant'}
+          content={character.greeting}
+          character={character}
+        />
         {messages.map((m, i) => (
           <div key={i}>
-            <ChatMessage role={m.role} content={m.content as string} />
+            <CharacterMessage
+              role={m.role}
+              content={m.content as string}
+              character={character}
+            />
           </div>
         ))}
       </div>
@@ -154,5 +141,4 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId, userId, setRoomId }) => {
     </div>
   );
 };
-
-export default ChatRoom;
+export default CharacterChatRoom;
