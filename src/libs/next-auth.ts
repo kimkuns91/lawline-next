@@ -8,14 +8,14 @@ import KakaoProvider from 'next-auth/providers/kakao';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from './prisma';
 
-if (
-  !process.env.KAKAO_CLIENT_ID ||
-  !process.env.KAKAO_CLIENT_SECRET ||
-  !process.env.NEXTAUTH_SECRET
-) {
-  console.error('환경 변수가 설정되지 않았습니다.');
-  process.exit(1);
-}
+// if (
+//   !process.env.KAKAO_CLIENT_ID ||
+//   !process.env.KAKAO_CLIENT_SECRET ||
+//   !process.env.NEXTAUTH_SECRET
+// ) {
+//   console.error('환경 변수가 설정되지 않았습니다.');
+//   process.exit(1);
+// }
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
